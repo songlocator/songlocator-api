@@ -367,7 +367,7 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 											results: [finalResult],
 											qid: qid
 										};
-										Tomahawk.addTrackResults(resolveReturn);
+										that.addTrackResults(resolveReturn);
 									}
 								}
 								else {
@@ -381,11 +381,11 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 					}
 				}
 				if (stop === 0){ // if no results had appropriate titles, return empty
-					Tomahawk.addTrackResults(empty);
+					that.addTrackResults(empty);
 				}
 			}
 			else {
-				Tomahawk.addTrackResults(empty);
+				that.addTrackResults(empty);
 			}
 		});
 	},
@@ -526,7 +526,7 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 			results: [],
 			qid: qid
 		};
-		Tomahawk.addTrackResults(empty);
+		this.addTrackResults(empty);
 	},
 	 
 	handleItemResponse: function(qid, searchString, data)
@@ -642,7 +642,7 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 										results: finalResults,
 										qid: qid
 									};
-									Tomahawk.addTrackResults(return1);
+									that.addTrackResults(return1);
 									return;
 								}
 							}

@@ -10,9 +10,6 @@ exports.window = {}
 
 exports.Tomahawk =
 
-  addTrackResults: (results) ->
-    console.log results
-
   resolver: {}
 
   readBase64: ->
@@ -62,3 +59,6 @@ exports.TomahawkResolver =
 
   search: (qid, searchString) ->
     this.resolve(qid, "", "", searchString)
+
+  addTrackResults: (results) ->
+    this.emit 'result', results
