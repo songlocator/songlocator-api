@@ -17,7 +17,7 @@ class exports.BaseResolver extends EventEmitter
   constructor: (settings) ->
     this.settings = _.extend({}, this.settings or {}, settings)
 
-  resolve: (qid, artist, album, title) ->
+  resolve: (qid, artist, title) ->
     {qid}
 
   search: (qid, searchString) ->
@@ -63,6 +63,6 @@ class exports.ResolverSet extends EventEmitter
     for r in this.resolvers
       r.search(qid, searchString)
 
-  resolve: (qid, artist, album, title) ->
+  resolve: (qid, artist, title) ->
     for r in this.resolvers
-      r.resolve(qid, artist, album, title)
+      r.resolve(qid, artist, title)

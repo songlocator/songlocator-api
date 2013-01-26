@@ -46,7 +46,7 @@ class exports.Resolver extends BaseResolver
     else
       true
 
-  resolve: (qid, artist, album, title) ->
+  resolve: (qid, artist, title) ->
     if artist != ""
       query = artist + " "
 
