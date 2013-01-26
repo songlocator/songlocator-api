@@ -2,9 +2,10 @@
   Shim which allows to re-use tomahawk resolvers almost "as-is".
 ###
 
-{extend} = require 'underscore'
 {XMLHttpRequest} = require 'xmlhttprequest'
 {EventEmitter} = require 'events'
+
+{extend} = require './utils'
 
 exports.window = {}
 
