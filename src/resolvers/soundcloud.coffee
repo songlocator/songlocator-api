@@ -11,6 +11,9 @@
 capitalize = (s) ->
   s.replace(/(^|\s)([a-z])/g , (m, p1, p2) -> p1 + p2.toUpperCase())
 
+removeQuotes = (s) ->
+  s.replace('"', '').replace("'", "")
+
 class exports.Resolver extends BaseResolver
 
   settings:
@@ -21,6 +24,7 @@ class exports.Resolver extends BaseResolver
     includeRemixes: false
     includeLive: false
     clientID: '6fbc2e93c1ce8b25cc6f5c18b68bbce4'
+    useEchonest: true
     echonestAPIKey: 'JRIHWEP6GPOER2QQ6'
 
   isTrack: (trackTitle, origTitle) ->
@@ -59,12 +63,10 @@ class exports.Resolver extends BaseResolver
       data = JSON.parse(body)
 
       if error or resp.statusCode != 200
-        this.end(qid: qid)
-        return
+        return this.end(qid: qid)
 
       if data.length == 0
-        this.end(qid: qid)
-        return
+        return this.end(qid: qid)
 
       results = for r in data
         # Need some more validation here.
@@ -112,7 +114,7 @@ class exports.Resolver extends BaseResolver
     params =
       client_id: this.settings.clientID
       filter: 'streamable'
-      q: searchString.replace('"', '').replace("'", "")
+      q: removeQuotes(searchString)
 
     this.request url, params, (error, resp, body) =>
 
@@ -132,109 +134,97 @@ class exports.Resolver extends BaseResolver
 
       data = JSON.parse(body)
 
-      if data.length != 0
+      if data.length == 0
+        return this.end(qid: qid)
 
-        results = []
-        stop = data.length
+      results = for r, i in data
 
-        for r, i in data
+        result = {}
 
-          if r == undefined
-            stop = stop - 1
-            continue
+        if not this.isTrack(r.title, '')
+          continue
 
-          result = {}
+        track = r.title
 
-          if this.isTrack(r.title, "")
-            track = r.title
+        if track.indexOf(" - ") != -1 and track.slice(track.indexOf(" - ") + 3).trim() != ""
+          result.track = track.slice(track.indexOf(" - ") + 3).trim()
+          result.artist = track.slice(0, track.indexOf(" - ")).trim()
 
-            if track.indexOf(" - ") != -1 and track.slice(track.indexOf(" - ") + 3).trim() != ""
-              result.track = track.slice(track.indexOf(" - ") + 3).trim();
-              result.artist = track.slice(0, track.indexOf(" - ")).trim();
+        else if track.indexOf(" -") != -1 and track.slice(track.indexOf(" -") + 2).trim() != ""
+          result.track = track.slice(track.indexOf(" -") + 2).trim()
+          result.artist = track.slice(0, track.indexOf(" -")).trim()
 
-            else if track.indexOf(" -") != -1 and track.slice(track.indexOf(" -") + 2).trim() != ""
-              result.track = track.slice(track.indexOf(" -") + 2).trim();
-              result.artist = track.slice(0, track.indexOf(" -")).trim();
+        else if track.indexOf(": ") != -1 and track.slice(track.indexOf(": ") + 2).trim() != ""
+          result.track = track.slice(track.indexOf(": ") + 2).trim()
+          result.artist = track.slice(0, track.indexOf(": ")).trim()
 
-            else if track.indexOf(": ") != -1 and track.slice(track.indexOf(": ") + 2).trim() != ""
-              result.track = track.slice(track.indexOf(": ") + 2).trim();
-              result.artist = track.slice(0, track.indexOf(": ")).trim();
+        else if track.indexOf("-") != -1 and track.slice(track.indexOf("-") + 1).trim() != ""
+          result.track = track.slice(track.indexOf("-") + 1).trim()
+          result.artist = track.slice(0, track.indexOf("-")).trim()
 
-            else if track.indexOf("-") != -1 and track.slice(track.indexOf("-") + 1).trim() != ""
-              result.track = track.slice(track.indexOf("-") + 1).trim();
-              result.artist = track.slice(0, track.indexOf("-")).trim();
+        else if track.indexOf(":") != -1 and track.slice(track.indexOf(":") + 1).trim() != ""
+          result.track = track.slice(track.indexOf(":") + 1).trim()
+          result.artist = track.slice(0, track.indexOf(":")).trim()
 
-            else if track.indexOf(":") != -1 and track.slice(track.indexOf(":") + 1).trim() != ""
-              result.track = track.slice(track.indexOf(":") + 1).trim();
-              result.artist = track.slice(0, track.indexOf(":")).trim();
+        else if track.indexOf("\u2014") != -1 and track.slice(track.indexOf("\u2014") + 2).trim() != ""
+          result.track = track.slice(track.indexOf("\u2014") + 2).trim()
+          result.artist = track.slice(0, track.indexOf("\u2014")).trim()
 
-            else if track.indexOf("\u2014") != -1 and track.slice(track.indexOf("\u2014") + 2).trim() != ""
-              result.track = track.slice(track.indexOf("\u2014") + 2).trim();
-              result.artist = track.slice(0, track.indexOf("\u2014")).trim();
+        else if r.title != "" and r.user.username != ""
+          # Last resort, the artist is the username
+          result.track = r.title
+          result.artist = r.user.username
 
-            else if r.title != "" and r.user.username != ""
-              # Last resort, the artist is the username
-              result.track = r.title;
-              result.artist = r.user.username;
+        else
+          continue
 
-            else
-              stop = stop - 1
-              continue
+        result.source = this.settings.name
+        result.mimetype = "audio/mpeg"
+        result.bitrate = 128
+        result.duration = r.duration / 1000
+        result.score = 0.85
+        result.year = r.release_year
+        result.url = "#{r.stream_url}.json?client_id=#{this.settings.clientID}"
+        result.linkUrl = r.permalink_url if r.permalink_url
 
-          else
-            stop = stop - 1
-            continue
+        result
 
-          result.source = this.settings.name
-          result.mimetype = "audio/mpeg"
-          result.bitrate = 128
-          result.duration = r.duration / 1000
-          result.score = 0.85
-          result.year = r.release_year
-          result.url = "#{r.stream_url}.json?client_id=#{this.settings.clientID}"
-
-          if r.permalink_url != undefined
-            result.linkUrl = r.permalink_url
-
-          do (result, i) =>
-            params =
-              api_key: this.settings.echonestAPIKey
-              format: 'json'
-              results: 1
-              sort: 'hotttnesss-desc'
-              text: capitalize(result.artist)
-
-            this.request "http://developer.echonest.com/api/v4/artist/extract", params, (error, resp, body) =>
-              if not error and resp.statusCode == 200
-                response = JSON.parse(body).response
-                if response and response.artists and response.artists.length > 0
-                  artist = response.artists[0].name
-                  result.artist = artist
-                  result.id = i
-                  results.push(result)
-                  stop = stop - 1
-                else
-                  stop = stop - 1
-
-                if stop == 0
-                  sortResults = (a, b) ->
-                    a.id - b.id
-                  results = results.sort(sortResults)
-
-                  for rj in results
-                    delete rj.id
-
-                  this.result {results: results, qid: qid}
-
-        if stop == 0
-          this.end(qid: qid)
-      else
+      if not this.settings.useEchonest
+        this.result(qid: qid, results: results)
         this.end(qid: qid)
 
-exports.test = ->
-  r = new exports.Resolver({})
-  r.on 'result', (m) ->
-    console.log m.results[0]
-  r.on 'end', (r) ->
-    console.log r.reason.details
-  r.search('qid', 'cherry eye andy stott')
+      else
+        this.queryEchonest(qid, results)
+
+  queryEchonest: (qid, results) ->
+    stop = results.length
+    refinedResults = []
+    for result, i in results
+      do (result, i) =>
+        params =
+          api_key: this.settings.echonestAPIKey
+          format: 'json'
+          results: 1
+          sort: 'hotttnesss-desc'
+          text: capitalize(result.artist)
+
+        this.request "http://developer.echonest.com/api/v4/artist/extract", params, (error, resp, body) =>
+          stop = stop - 1
+
+          if not error and resp.statusCode == 200
+            response = JSON.parse(body).response
+
+            if response and response.artists and response.artists.length > 0
+              artist = response.artists[0].name
+              result.artist = artist
+              result.id = i
+              refinedResults.push(result)
+
+          if stop == 0
+            refinedResults = refinedResults.sort (a, b) -> a.id - b.id
+
+            for rj in refinedResults
+              delete rj.id
+
+            this.result {results: refinedResults, qid: qid}
+            this.end(qid: qid)
