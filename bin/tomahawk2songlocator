@@ -1,0 +1,16 @@
+#!/bin/sh
+
+cat <<EOF
+var tomahawkShim = require('../tomahawkshim');
+var Tomahawk = tomahawkShim.Tomahawk;
+var TomahawkResolver = tomahawkShim.TomahawkResolver;
+var window = tomahawkShim.window;
+var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+EOF
+
+cat $1 | iconv -t utf-8 -c | sed -E \
+  "s/Tomahawk\.addTrackResults/((typeof that === 'undefined')?this:that).addTrackResults/g"
+
+cat <<EOF
+exports.Resolver = Tomahawk.resolver.instance;
+EOF
