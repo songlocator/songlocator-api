@@ -23,7 +23,7 @@ class exports.Resolver extends BaseResolver
     includeCovers: false
     includeRemixes: false
     includeLive: false
-    clientID: '6fbc2e93c1ce8b25cc6f5c18b68bbce4'
+    clientID: 'TiNg2DRYhBnp01DA3zNag'
     useEchonest: true
     echonestAPIKey: 'JRIHWEP6GPOER2QQ6'
 
