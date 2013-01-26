@@ -11,20 +11,27 @@ exports.main = (port = 3000) ->
   server = new Server(port: port)
 
   server.on 'connection', (sock) ->
+    send = (msg) ->
+      sock.send JSON.stringify msg
+
     resolver = ResolverSet.fromConfig(config)
 
-    resolver.on 'result', (result) ->
-      sock.send JSON.stringify result
+    resolver.on 'result', send
 
     sock.on 'message', (message) ->
       req = try
         JSON.parse(message)
       catch e
         undefined
+
       return unless req
+
+      # generate qid if no qid was supplied
       qid = req.qid or v4()
+
       if req.method == 'search'
         resolver.search(qid, req.searchString)
+
       else if req.method == 'resolve'
         resolver.search(qid, req.artist, req.album, req.track)
 
