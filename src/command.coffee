@@ -8,7 +8,6 @@
 getResolver = (config) ->
   resolver = ResolverSet.fromConfig(config)
   resolver.on 'result', (r) ->
-    console.log r
     r.results.forEach (t) ->
       console.log "#{t.artist} — #{t.track}"
   resolver
