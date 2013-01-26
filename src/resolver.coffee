@@ -7,7 +7,7 @@
 {EventEmitter} = require 'events'
 request = require 'request'
 url = require 'url'
-_ = require 'underscore'
+{extend} = require 'underscore'
 
 ###
   Base class for resolvers.
@@ -15,7 +15,7 @@ _ = require 'underscore'
 class exports.BaseResolver extends EventEmitter
 
   constructor: (settings) ->
-    this.settings = _.extend({}, this.settings or {}, settings)
+    this.settings = extend({}, this.settings or {}, settings)
 
   resolve: (qid, artist, title) ->
     {qid}
