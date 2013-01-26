@@ -1,13 +1,12 @@
 {parse} = require 'argsparser'
-{isArray, uniqueId} = require 'underscore'
+{isArray} = require 'util'
+{v4} = require 'node-uuid'
 
+{readConfigSync} = require './utils'
 {ResolverSet} = require './resolverset'
 
-getResolver = ->
-  resolver = ResolverSet.fromConfig
-    exfm: {}
-   #soundcloud: {}
-   #youtube: {}
+getResolver = (config) ->
+  resolver = ResolverSet.fromConfig(config)
   resolver.on 'result', (r) ->
     r.results.forEach (t) ->
       console.log "#{t.artist} — #{t.track}"
@@ -20,4 +19,6 @@ exports.search = ->
   else
     throw new Error('provide search term as arg')
 
-  getResolver().search uniqueId('search'), searchString
+  config = readConfigSync(opts['-c']) or {youtube: {}}
+
+  getResolver(config).search(v4(), searchString)
