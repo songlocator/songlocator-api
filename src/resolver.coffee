@@ -24,19 +24,19 @@ class exports.BaseResolver extends EventEmitter
     this.resolve(qid, '', '', searchString)
 
   request: (uri, params, callback) ->
-    params = url.format(params)
-    uri = "#{uri}?#{params}"
+    params = url.format(query: params)
+    uri = "#{uri}#{params}"
     request(uri, callback)
 
-	log: (msg, debug = false) ->
-	  return if debug and not this.settings.debugMode
-	  console.log "#{this.settings.name}: #{msg}"
+  log: (msg, debug = false) ->
+    return if debug and not this.settings.debugMode
+    console.log "#{this.settings.name}: #{msg}"
 
-	result: (m) ->
-	  this.emit('result', m)
+  result: (m) ->
+    this.emit('result', m)
 
-	end: (m) ->
-	  this.emit('end', m)
+  end: (m) ->
+    this.emit('end', m)
 
 ###
   Facade for working with a set of resolvers.

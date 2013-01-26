@@ -20,9 +20,8 @@ class exports.Resolver extends BaseResolver
     includeCovers: false
     includeRemixes: false
     includeLive: false
+    clientID: '6fbc2e93c1ce8b25cc6f5c18b68bbce4'
     echonestAPIKey: 'JRIHWEP6GPOER2QQ6'
-    clientID: 'TiNg2DRYhBnp01DA3zNag'
-    consumerKey: 'TiNg2DRYhBnp01DA3zNag'
 
   isTrack: (trackTitle, origTitle) ->
     if (this.settings.includeCovers == false or this.settings.includeCovers == undefined) \
@@ -51,7 +50,7 @@ class exports.Resolver extends BaseResolver
       query = query + title
 
     params =
-      consumer_key: this.settings.consumerKey
+      client_id: this.settings.clientID
       filter: 'streamable'
       q: query
 
@@ -111,14 +110,24 @@ class exports.Resolver extends BaseResolver
   search: (qid, searchString) ->
     url = "http://api.soundcloud.com/tracks.json"
     params =
-      consumer_key: this.settings.consumerKey
+      client_id: this.settings.clientID
       filter: 'streamable'
       q: searchString.replace('"', '').replace("'", "")
 
-    this.request url, params, (error, resp, body) ->
+    this.request url, params, (error, resp, body) =>
 
       if error or resp.statusCode != 200
-        this.end(qid: qid)
+
+        errorDetails = if error
+          error
+        else
+          JSON.parse(resp.body)
+
+        this.end
+          qid: qid
+          reason:
+            msg: 'error querying service'
+            details: errorDetails
         return
 
       data = JSON.parse(body)
@@ -128,7 +137,7 @@ class exports.Resolver extends BaseResolver
         results = []
         stop = data.length
 
-        for r in data
+        for r, i in data
 
           if r == undefined
             stop = stop - 1
@@ -187,7 +196,7 @@ class exports.Resolver extends BaseResolver
           if r.permalink_url != undefined
             result.linkUrl = r.permalink_url
 
-          do (i, result) =>
+          do (result, i) =>
             params =
               api_key: this.settings.echonestAPIKey
               format: 'json'
@@ -197,9 +206,9 @@ class exports.Resolver extends BaseResolver
 
             this.request "http://developer.echonest.com/api/v4/artist/extract", params, (error, resp, body) =>
               if not error and resp.statusCode == 200
-                dataonse = JSON.parse(body).dataonse
-                if dataonse and dataonse.artists and dataonse.artists.length > 0
-                  artist = dataonse.artists[0].name
+                response = JSON.parse(body).response
+                if response and response.artists and response.artists.length > 0
+                  artist = response.artists[0].name
                   result.artist = artist
                   result.id = i
                   results.push(result)
@@ -215,7 +224,7 @@ class exports.Resolver extends BaseResolver
                   for rj in results
                     delete rj.id
 
-                  this.results {results: results, qid: qid}
+                  this.result {results: results, qid: qid}
 
         if stop == 0
           this.end(qid: qid)
@@ -224,5 +233,8 @@ class exports.Resolver extends BaseResolver
 
 exports.test = ->
   r = new exports.Resolver({})
-  r.on 'results', (m) -> console.log m
-  r.search('qid', 'cherry eye')
+  r.on 'result', (m) ->
+    console.log m.results[0]
+  r.on 'end', (r) ->
+    console.log r.reason.details
+  r.search('qid', 'cherry eye andy stott')
