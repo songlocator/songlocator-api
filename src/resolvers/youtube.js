@@ -620,6 +620,9 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 		for ( var artistKey in artists ) {
 			this.asyncRequest(artistLookupUrl+artistKey, artists[artistKey], function(xhr, ids) {
 				var response = JSON.parse(xhr.responseText);
+				if (!response.results) {
+					return;
+				}
 				if (response.results.artistmatches.artist !== undefined) {
 					var artist = response.results.artistmatches.artist.name;
 					for (var i = 0; i < ids.length; i++) {
