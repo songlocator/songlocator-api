@@ -1,6 +1,6 @@
 {
 	"name": "songlocator",
-  "description": "Resolve song metadata to audio, inspired by Tomahawk",
+  "description": "Songlocator is a way for Tomahawk resolvers to be exposed via WebSocket API",
   "tags": ["api", "music", "streaming", "audio", "playdar", "tomahawk"],
   "version": "0.1.0",
   "author": "Andrey Popp <8mayday@gmail.com>",
