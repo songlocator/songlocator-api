@@ -65,4 +65,7 @@ exports.TomahawkResolver =
     this.resolve(qid, "", "", searchString)
 
   addTrackResults: (results) ->
+    # some resolvers could be not so nice
+    if results.results
+      results.results = results.results.filter (r) -> r
     this.emit 'result', results
