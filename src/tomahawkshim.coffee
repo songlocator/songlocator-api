@@ -7,7 +7,9 @@
 
 {extend} = require './utils'
 
-exports.window = {}
+exports.window =
+  localStorage: {}
+  sessionStorage: {}
 
 exports.Tomahawk =
 
