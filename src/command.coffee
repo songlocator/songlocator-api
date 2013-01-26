@@ -33,5 +33,4 @@ exports.resolve = ->
 
   config = readConfigSync(opts['-c']) or {youtube: {}}
 
-  console.log artist, track
   getResolver(config).resolve(v4(), artist, '', track)
