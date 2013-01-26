@@ -1,6 +1,11 @@
+var tomahawkShim = require('../tomahawkshim');
+var Tomahawk = tomahawkShim.Tomahawk;
+var TomahawkResolver = tomahawkShim.TomahawkResolver;
+var window = tomahawkShim.window;
+var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 /*
- * Copyright (C) 2012 Hugo Lindström <hugolm84@gmail.com>
- * Copyright (C) 2012 Thierry Göckel <thierry@strayrayday.lu>
+ * Copyright (C) 2012 Hugo Lindstrm <hugolm84@gmail.com>
+ * Copyright (C) 2012 Thierry Gckel <thierry@strayrayday.lu>
  * Copyright (C) 2012 Leo Franchi <lfranchi@kde.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,15 +23,8 @@
  *
  * NOTICE: This resolver and its intent, is for demonstrational purposes only
  **/
-
-var tomahawkShim = require('../tomahawkshim');
-var Tomahawk = tomahawkShim.Tomahawk;
-var TomahawkResolver = tomahawkShim.TomahawkResolver;
-var window = tomahawkShim.window;
-var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-
 var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
-
+	
 	getConfigUi: function ()
 	{
 		var uiData = Tomahawk.readBase64("config.ui");
@@ -367,7 +365,7 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 											results: [finalResult],
 											qid: qid
 										};
-										that.addTrackResults(resolveReturn);
+										((typeof that === 'undefined')?this:that).addTrackResults(resolveReturn);
 									}
 								}
 								else {
@@ -381,11 +379,11 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 					}
 				}
 				if (stop === 0){ // if no results had appropriate titles, return empty
-					that.addTrackResults(empty);
+					((typeof that === 'undefined')?this:that).addTrackResults(empty);
 				}
 			}
 			else {
-				that.addTrackResults(empty);
+				((typeof that === 'undefined')?this:that).addTrackResults(empty);
 			}
 		});
 	},
@@ -526,7 +524,7 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 			results: [],
 			qid: qid
 		};
-		this.addTrackResults(empty);
+		((typeof that === 'undefined')?this:that).addTrackResults(empty);
 	},
 	 
 	handleItemResponse: function(qid, searchString, data)
@@ -642,7 +640,7 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 										results: finalResults,
 										qid: qid
 									};
-									that.addTrackResults(return1);
+									((typeof that === 'undefined')?this:that).addTrackResults(return1);
 									return;
 								}
 							}
@@ -681,5 +679,4 @@ var YoutubeResolver = Tomahawk.extend(TomahawkResolver, {
 });
 
 Tomahawk.resolver.instance = YoutubeResolver;
-
 exports.Resolver = Tomahawk.resolver.instance;
