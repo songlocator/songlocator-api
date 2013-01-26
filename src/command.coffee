@@ -4,9 +4,9 @@
 
 getResolver = ->
   resolver = ResolverSet.fromConfig
-    youtube: {}
+    exfm: {}
    #soundcloud: {}
-   #exfm: {}
+   #youtube: {}
   resolver.on 'result', (r) ->
     r.results.forEach (t) ->
       console.log "#{t.artist} — #{t.track}"
