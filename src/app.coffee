@@ -17,7 +17,11 @@ exports.main = (port = 3000) ->
       sock.send JSON.stringify result
 
     sock.on 'message', (message) ->
-      req = JSON.parse(req)
+      req = try
+        JSON.parse(message)
+      catch e
+        undefined
+      return unless req
       qid = req.qid or v4()
       if req.method == 'search'
         resolver.search(qid, req.searchString)
