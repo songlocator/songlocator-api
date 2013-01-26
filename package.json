@@ -1,14 +1,14 @@
 {
 	"name": "songlocator",
-  "description": "Resolve song metadata to audio, inspired by Playdar and Tomahawk",
+  "description": "Resolve song metadata to audio, inspired by Tomahawk",
   "tags": ["api", "music", "streaming", "audio", "playdar", "tomahawk"],
   "version": "0.1.0",
   "author": "Andrey Popp <8mayday@gmail.com>",
   "dependencies": {
-	"request": "~2.12.0",
-	"underscore": "~1.4.0",
-	"express": "~3.1.0",
-	"argsparser": "0.0.6",
-	"xmlhttprequest": "~1.5.0"
+		"underscore": "~1.4.0",
+		"argsparser": "0.0.6",
+		"xmlhttprequest": "~1.5.0",
+		"ws": "~0.4.0",
+		"node-uuid": "~1.4.0"
 	}
 }

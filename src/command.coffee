@@ -1,6 +1,7 @@
-{ResolverSet} = require './resolver'
 {parse} = require 'argsparser'
 {isArray, uniqueId} = require 'underscore'
+
+{ResolverSet} = require './resolverset'
 
 getResolver = ->
   resolver = ResolverSet.fromConfig

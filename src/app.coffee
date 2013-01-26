@@ -1,32 +1,27 @@
-express = require 'express'
-{ResolverSet} = require './resolver'
+{Server} = require 'ws'
+{v4} = require 'node-uuid'
 
-createApp = (config) ->
+{ResolverSet} = require './resolverset'
 
-  app = express()
+exports.main = (port = 3000) ->
+  server = new Server(port: port)
 
-  app.resolver = ResolverSet.fromConfig(config.resolvers)
-
-  app.get '/search', (req, res) ->
-    res.send 'searched'
-
-  app.get '/resolve', (req, res) ->
-    res.send 'resolved'
-
-  app
-
-main = (port = 3000) ->
-  app = createApp
-    resolvers:
+  server.on 'connection', (sock) ->
+    resolver = ResolverSet.fromConfig
       soundcloud: {}
-  app.listen 3000
+      youtube: {}
+      exfm: {}
 
-  resolversNames = for r in app.resolver.resolvers
-    r.settings.name
+    resolver.on 'result', (result) ->
+      sock.send JSON.stringify result
+
+    sock.on 'message', (message) ->
+      req = JSON.parse(req)
+      qid = req.qid or v4()
+      if req.method == 'search'
+        resolver.search(qid, req.searchString)
+      else if req.method == 'resolve'
+        resolver.search(qid, req.artist, req.album, req.track)
 
   console.log "Start listening on localhost:#{port}"
-  console.log "with the following resolvers: #{resolversNames.join(', ')}"
-
-  app
-
-module.exports = {createApp, main}
+  server
