@@ -17,8 +17,9 @@ exports.Tomahawk =
 
   extend: (base, obj) ->
     class AdaptedResolver extends EventEmitter
-      constructor: ->
+      constructor: (settings = {}) ->
         this.init()
+        this.settings = extend({}, (this.settings or {}), settings)
     extend(AdaptedResolver.prototype, base, obj)
     AdaptedResolver
 
