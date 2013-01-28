@@ -12,8 +12,12 @@ exports.parseArguments = (argv = process.argv) ->
   opts = {config: undefined, resolvers: []}
   while argv.length > 0
     arg = argv.shift()
+
     if arg == '-c' or args == '--config'
       opts.config = argv.shift()
+
+    else if arg == '--debug'
+      opts.debug = true
 
     else if arg.substring(0, 6) == '--use-'
       opts.resolvers.push(arg.substring(6))
