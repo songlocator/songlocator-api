@@ -1,13 +1,16 @@
-{parse} = require 'argsparser'
 {Server} = require 'ws'
 {v4} = require 'node-uuid'
 
-{readConfigSync} = require './utils'
+{readConfigSync, parseArguments} = require './utils'
 {ResolverSet} = require './resolverset'
 
 exports.main = (port = 3000) ->
-  opts = parse()
-  config = readConfigSync(opts['-c']) or {youtube: {}}
+  {opts} = parseArguments()
+
+  config = readConfigSync(opts.config) or {}
+  for resolverName in opts.resolvers
+    config[resolverName] = {}
+
   server = new Server(port: port)
 
   server.on 'connection', (sock) ->

@@ -1,11 +1,15 @@
-{parse} = require 'argsparser'
 {isArray} = require 'util'
 {v4} = require 'node-uuid'
 
-{readConfigSync} = require './utils'
+{readConfigSync, parseArguments, extend} = require './utils'
 {ResolverSet} = require './resolverset'
 
-getResolver = (config) ->
+getResolver = (config, resolverNames = []) ->
+  config = extend({}, config)
+
+  for resolverName in resolverNames
+    config[resolverName] = {}
+
   resolver = ResolverSet.fromConfig(config)
   resolver.on 'result', (r) ->
     r.results.forEach (t) ->
@@ -13,23 +17,20 @@ getResolver = (config) ->
   resolver
 
 exports.search = ->
-  opts = parse()
-  searchString = if isArray(opts.node) and opts.node.length > 0
-    opts.node[1]
-  else
-    throw new Error('provide search term as arg')
+  {args: [searchString], opts} = parseArguments()
 
-  config = readConfigSync(opts['-c']) or {youtube: {}}
+  if not searchString?
+    throw new Error('provide search term as arg') 
 
-  getResolver(config).search(v4(), searchString)
+  config = readConfigSync(opts.config) or {}
+  getResolver(config, opts.resolvers).search(v4(), searchString)
 
 exports.resolve = ->
-  opts = parse()
-  [artist, track] = if isArray(opts.node) and opts.node.length > 1
-    [opts.node[1], opts.node[2]]
-  else
-    throw new Error('provide arist and track as args')
+  {args: [artist, track, album], opts} = parseArguments()
 
-  config = readConfigSync(opts['-c']) or {youtube: {}}
+  if not artist? and track?
+    throw new Error('provide artist and track as first two args') 
 
-  getResolver(config).resolve(v4(), artist, '', track)
+  config = readConfigSync(opts.config) or {}
+
+  getResolver(config, opts.resolvers).resolve(v4(), artist, album or '', track)
