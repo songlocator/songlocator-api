@@ -1,8 +1,8 @@
 {Server} = require 'ws'
 {v4} = require 'node-uuid'
 
-{readConfigSync, parseArguments} = require './utils'
-{ResolverSet} = require './resolverset'
+{ResolverSet} = require 'songlocator-base'
+{readConfigSync, parseArguments} = require 'songlocator-cli'
 
 exports.main = (port = 3000) ->
   {opts} = parseArguments()
@@ -22,7 +22,10 @@ exports.main = (port = 3000) ->
         console.log('response', {qid: msg.qid, length: msg.results.length}) 
       sock.send JSON.stringify msg
 
-    resolver = ResolverSet.fromConfig(config)
+    resolvers = for name, cfg of config
+      new require(name).Resolver(cfg)
+
+    resolver = new ResolverSet(resolvers)
 
     resolver.on 'result', send
 
