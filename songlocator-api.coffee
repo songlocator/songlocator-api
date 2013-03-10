@@ -23,11 +23,11 @@ exports.main = (port = 3000) ->
       sock.send JSON.stringify msg
 
     resolvers = for name, cfg of config
-      new require(name).Resolver(cfg)
+      resolverCls = (require("songlocator-#{name}")).Resolver
+      new resolverCls(cfg)
 
     resolver = new ResolverSet(resolvers)
-
-    resolver.on 'result', send
+    resolver.on 'results', send
 
     sock.on 'message', (message) ->
       req = try
@@ -44,10 +44,10 @@ exports.main = (port = 3000) ->
         console.log('request', req) 
 
       if req.method == 'search'
-        resolver.search(qid, req.searchString)
+        resolver.search(qid, req.query)
 
       else if req.method == 'resolve'
-        resolver.search(qid, req.artist, req.album, req.track)
+        resolver.search(qid, req.title, req.artist, req.album)
 
   console.log "start listening on localhost:#{port}"
   server

@@ -1,16 +1,32 @@
 {
-  "name": "songlocator",
-  "description": "Songlocator is a way for Tomahawk resolvers to be exposed via WebSocket API",
-  "tags": ["api", "music", "streaming", "audio", "playdar", "tomahawk"],
+  "name": "songlocator-api",
   "version": "0.1.0",
-  "author": "Andrey Popp <8mayday@gmail.com>",
+  "description": "SongLocator resolvers exposed as WebSocket API",
+  "main": "songlocator-api.js",
   "engines": {
     "node": "~0.8.x",
     "npm": "~1.1.x"
   },
   "dependencies": {
-    "xmlhttprequest": "~1.5.0",
     "ws": "~0.4.0",
-    "node-uuid": "~1.4.0"
-  }
+    "node-uuid": "~1.4.0",
+    "songlocator-base": "~0.1.2",
+    "songlocator-cli": "~0.1.0"
+  },
+  "browser": "songlocator-api-client.js",
+  "bin": {
+      "songlocator-api": "bin/songlocator-api"
+  },
+  "repository": {
+      "type": "git",
+      "url": "git://github.com/songlocator/songlocator-api.git"
+  },
+  "homepage": "https://github.com/songlocator/songlocator-api",
+  "keywords": ["songlocator", "api", "music", "streaming", "audio", "resolver", "websocket"],
+  "author": {
+      "name": "Andrey Popp",
+      "email": "8mayday@gmail.com",
+      "url": "http://andreypopp.com"
+  },
+  "license": "MIT"
 }

@@ -1,0 +1,11 @@
+{
+  "name": "songlocator-api",
+  "version": "0.1.0",
+  "description": "SongLocator resolvers exposed as WebSocket API",
+  "keywords": ["songlocator", "api", "music", "streaming", "audio", "resolver", "websocket"],
+  "author": "Andrey Popp <8mayday@gmail.com>",
+  "main": ["./songlocator-api-client.js"],
+  "dependencies": {
+    "songlocator-base": "~0.1.2"
+  }
+}
