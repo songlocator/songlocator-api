@@ -23,12 +23,17 @@ class exports.SongLocatorServer
       this.debug('got new connection')
 
       send = (msg) =>
-        this.debug('response', {qid: msg.qid, length: msg.results.length}) 
-        sock.send JSON.stringify msg
+        try
+          this.debug('response', {qid: msg.qid, length: msg.results.length}) 
+          sock.send JSON.stringify msg
+        catch e
+          this.debug("error while sending message: #{e}")
 
       resolvers = for name, cfg of this.config.resolvers
         resolverCls = (require("songlocator-#{name}")).Resolver
         new resolverCls(cfg)
+
+      this.debug("initialized resolvers: #{(r.name for r in resolvers).join(', ')}")
 
       resolver = new ResolverSet(resolvers)
 
@@ -48,11 +53,11 @@ class exports.SongLocatorServer
 
         this.debug('request', req) 
 
-        if req.method == 'search'
+        if req.method == 'search' and req.query
           resolver.search(qid, req.query)
 
-        else if req.method == 'resolve'
-          resolver.search(qid, req.title, req.artist, req.album)
+        else if req.method == 'resolve' and req.title
+          resolver.resolve(qid, req.title, req.artist, req.album)
 
     this.log "start listening on localhost:#{this.config.port}"
 

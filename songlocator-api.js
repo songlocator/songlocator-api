@@ -38,14 +38,18 @@ exports.SongLocatorServer = (function() {
       port: this.config.port || 3000
     });
     this.server.on('connection', function(sock) {
-      var cfg, name, resolver, resolverCls, resolvers, send;
+      var cfg, name, r, resolver, resolverCls, resolvers, send;
       _this.debug('got new connection');
       send = function(msg) {
-        _this.debug('response', {
-          qid: msg.qid,
-          length: msg.results.length
-        });
-        return sock.send(JSON.stringify(msg));
+        try {
+          _this.debug('response', {
+            qid: msg.qid,
+            length: msg.results.length
+          });
+          return sock.send(JSON.stringify(msg));
+        } catch (e) {
+          return _this.debug("error while sending message: " + e);
+        }
       };
       resolvers = (function() {
         var _ref1, _results;
@@ -58,6 +62,15 @@ exports.SongLocatorServer = (function() {
         }
         return _results;
       }).call(_this);
+      _this.debug("initialized resolvers: " + (((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = resolvers.length; _i < _len; _i++) {
+          r = resolvers[_i];
+          _results.push(r.name);
+        }
+        return _results;
+      })()).join(', ')));
       resolver = new ResolverSet(resolvers);
       resolver.on('results', send);
       return sock.on('message', function(message) {
@@ -74,10 +87,10 @@ exports.SongLocatorServer = (function() {
         }
         qid = req.qid || v4();
         _this.debug('request', req);
-        if (req.method === 'search') {
+        if (req.method === 'search' && req.query) {
           return resolver.search(qid, req.query);
-        } else if (req.method === 'resolve') {
-          return resolver.search(qid, req.title, req.artist, req.album);
+        } else if (req.method === 'resolve' && req.title) {
+          return resolver.resolve(qid, req.title, req.artist, req.album);
         }
       });
     });
